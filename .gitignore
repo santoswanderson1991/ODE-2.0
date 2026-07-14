@@ -1,0 +1,46 @@
+# Dependencies
+/vendor/
+
+# Composer
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# Cache
+/storage/cache/*
+!/storage/cache/.gitkeep
+
+# Temp
+/storage/temp/*
+!/storage/temp/.gitkeep
+
+# Sessions
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+
+# PHPUnit
+.phpunit.result.cache
+
+# Coverage
+coverage/
+
+# Environment
+.env
+.env.*
+
+# Node
+node_modules/
+
+# Build
+dist/
+build/
