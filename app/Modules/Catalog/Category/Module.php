@@ -9,7 +9,6 @@ use ODE\Modules\Catalog\Category\Repositories\CategoryRepository;
 use ODE\Modules\Catalog\Category\Services\CategoryService;
 use ODE\Modules\Catalog\Category\Validators\CategoryValidator;
 use ODE\Modules\Catalog\Category\Controllers\CategoryController;
-use ODE\Modules\Catalog\Category\Ajax\CategoryAjax;
 
 final class Module
 {
@@ -40,16 +39,9 @@ final class Module
             )
         );
 
-        $container->singleton(
-            CategoryAjax::class,
-            fn (Container $container) => new CategoryAjax(
-                $container->get(CategoryController::class)
-            )
-        );
     }
 
     public function boot(): void
     {
-        //
     }
 }
