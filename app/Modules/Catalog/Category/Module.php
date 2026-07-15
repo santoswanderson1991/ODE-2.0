@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace ODE\Modules\Catalog\Category;
 
 use ODE\Core\Container;
+use ODE\Modules\Catalog\Category\Repositories\CategoryRepository;
+use ODE\Modules\Catalog\Category\Services\CategoryService;
+use ODE\Modules\Catalog\Category\Validators\CategoryValidator;
+use ODE\Modules\Catalog\Category\Controllers\CategoryController;
+use ODE\Modules\Catalog\Category\Ajax\CategoryAjax;
 
 final class Module
 {
