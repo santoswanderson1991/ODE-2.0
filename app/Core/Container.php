@@ -10,7 +10,7 @@ use InvalidArgumentException;
 final class Container
 {
     /**
-     * @var array<string,mixed>
+     * @var array<string,array{factory:Closure,shared:bool}>
      */
     private array $bindings = [];
 
@@ -19,46 +19,45 @@ final class Container
      */
     private array $instances = [];
 
-    public function singleton(string $abstract, Closure $factory): void
+    public function singleton(string $id, Closure $factory): void
     {
-        $this->bindings[$abstract] = [
+        $this->bindings[$id] = [
             'factory' => $factory,
             'shared'  => true,
         ];
     }
 
-    public function bind(string $abstract, Closure $factory): void
+    public function bind(string $id, Closure $factory): void
     {
-        $this->bindings[$abstract] = [
+        $this->bindings[$id] = [
             'factory' => $factory,
             'shared'  => false,
         ];
     }
 
-    public function has(string $abstract): bool
+    public function has(string $id): bool
     {
-        return isset($this->bindings[$abstract]) ||
-               isset($this->instances[$abstract]);
+        return isset($this->bindings[$id]) || isset($this->instances[$id]);
     }
 
-    public function make(string $abstract): mixed
+    public function get(string $id): mixed
     {
-        if (isset($this->instances[$abstract])) {
-            return $this->instances[$abstract];
+        if (isset($this->instances[$id])) {
+            return $this->instances[$id];
         }
 
-        if (! isset($this->bindings[$abstract])) {
+        if (! isset($this->bindings[$id])) {
             throw new InvalidArgumentException(
-                "Container binding '{$abstract}' not found."
+                sprintf('Service [%s] is not registered.', $id)
             );
         }
 
-        $binding = $this->bindings[$abstract];
+        $binding = $this->bindings[$id];
 
         $object = ($binding['factory'])($this);
 
         if ($binding['shared']) {
-            $this->instances[$abstract] = $object;
+            $this->instances[$id] = $object;
         }
 
         return $object;

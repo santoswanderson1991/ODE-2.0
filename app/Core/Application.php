@@ -8,17 +8,12 @@ final class Application
 {
     private Container $container;
 
-    private Environment $environment;
+    private ModuleManager $modules;
 
-    private Config $config;
-
-    public function __construct(string $basePath)
-    {
+    public function __construct(
+        private readonly string $basePath
+    ) {
         $this->container = new Container();
-
-        $this->environment = new Environment($basePath);
-
-        $this->config = new Config();
 
         $this->registerCore();
     }
@@ -26,19 +21,44 @@ final class Application
     private function registerCore(): void
     {
         $this->container->singleton(
+            self::class,
+            fn () => $this
+        );
+
+        $this->container->singleton(
             Container::class,
             fn () => $this->container
         );
 
         $this->container->singleton(
-            Environment::class,
-            fn () => $this->environment
+            Config::class,
+            fn () => new Config(
+                $this->basePath
+            )
         );
 
         $this->container->singleton(
-            Config::class,
-            fn () => $this->config
+            Logger::class,
+            fn () => new Logger(
+                $this->basePath
+            )
         );
+
+        $this->container->singleton(
+            ModuleManager::class,
+            fn () => new ModuleManager(
+                $this->container
+            )
+        );
+
+        $this->modules = $this->container->get(
+            ModuleManager::class
+        );
+    }
+
+    public function boot(): void
+    {
+        $this->modules->boot();
     }
 
     public function container(): Container
@@ -46,13 +66,8 @@ final class Application
         return $this->container;
     }
 
-    public function environment(): Environment
+    public function basePath(): string
     {
-        return $this->environment;
-    }
-
-    public function config(): Config
-    {
-        return $this->config;
+        return $this->basePath;
     }
 }
