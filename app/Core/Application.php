@@ -38,6 +38,11 @@ final class Application
         );
 
         $this->container->singleton(
+            Plugin::class,
+            fn () => new Plugin($this)
+        );
+
+        $this->container->singleton(
             Logger::class,
             fn () => new Logger(
                 $this->basePath
@@ -61,9 +66,13 @@ final class Application
         $this->modules->boot();
     }
 
-    public function container(): Container
+    public function boot(): void
     {
-        return $this->container;
+        $this->container
+            ->get(Plugin::class)
+            ->boot();
+
+        $this->modules->boot();
     }
 
     public function basePath(): string
