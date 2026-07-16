@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace ODE\Modules\Catalog\Category\Repositories;
 
-use ODE\Modules\Catalog\Category\DTO\CategoryDTO;
 use wpdb;
+use ODE\Modules\Catalog\Category\DTO\CategoryData;
+use ODE\Modules\Catalog\Category\Entities\Category;
 
 final class CategoryRepository
 {
@@ -22,7 +23,9 @@ final class CategoryRepository
     }
 
     /**
-     * @return CategoryDTO[]
+     * Retorna todas as categorias.
+     *
+     * @return Category[]
      */
     public function all(): array
     {
@@ -31,17 +34,13 @@ final class CategoryRepository
             ARRAY_A
         );
 
-        if (! is_array($rows)) {
-            return [];
-        }
-
         return array_map(
             fn(array $row) => $this->map($row),
-            $rows
+            $rows ?: []
         );
     }
 
-    public function find(int $id): ?CategoryDTO
+    public function find(int $id): ?Category
     {
         $row = $this->db->get_row(
             $this->db->prepare(
@@ -51,24 +50,33 @@ final class CategoryRepository
             ARRAY_A
         );
 
-        if (! is_array($row)) {
+        if (!$row) {
             return null;
         }
 
         return $this->map($row);
     }
 
-    public function create(CategoryDTO $dto): int
+    public function exists(int $id): bool
+    {
+        return $this->find($id) !== null;
+    }
+
+    public function create(CategoryData $data): int
     {
         $this->db->insert(
             $this->table,
             [
-                'name'      => $dto->name,
-                'slug'      => $dto->slug,
-                'position'  => $dto->position,
-                'active'    => $dto->active ? 1 : 0,
+                'name'        => $data->name,
+                'slug'        => $data->slug,
+                'description' => $data->description,
+                'image'       => $data->image,
+                'position'    => $data->position,
+                'active'      => $data->active ? 1 : 0,
             ],
             [
+                '%s',
+                '%s',
                 '%s',
                 '%s',
                 '%d',
@@ -79,14 +87,71 @@ final class CategoryRepository
         return (int) $this->db->insert_id;
     }
 
-    private function map(array $row): CategoryDTO
+    public function update(CategoryData $data): bool
     {
-        return new CategoryDTO(
-            (int) $row['id'],
-            $row['name'],
-            $row['slug'],
-            (int) $row['position'],
-            (bool) $row['active']
+        return (bool) $this->db->update(
+            $this->table,
+            [
+                'name'        => $data->name,
+                'slug'        => $data->slug,
+                'description' => $data->description,
+                'image'       => $data->image,
+                'position'    => $data->position,
+                'active'      => $data->active ? 1 : 0,
+            ],
+            [
+                'id' => $data->id,
+            ],
+            [
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%d',
+                '%d',
+            ],
+            [
+                '%d',
+            ]
+        );
+    }
+
+    public function delete(int $id): bool
+    {
+        return (bool) $this->db->delete(
+            $this->table,
+            [
+                'id' => $id,
+            ],
+            [
+                '%d',
+            ]
+        );
+    }
+
+    public function count(): int
+    {
+        return (int) $this->db->get_var(
+            "SELECT COUNT(*) FROM {$this->table}"
+        );
+    }
+
+    private function map(array $row): Category
+    {
+        return new Category(
+            id: (int) $row['id'],
+            name: $row['name'],
+            slug: $row['slug'],
+            position: (int) $row['position'],
+            active: (bool) $row['active'],
+            description: $row['description'],
+            image: $row['image'],
+            createdAt: isset($row['created_at'])
+                ? new \DateTimeImmutable($row['created_at'])
+                : null,
+            updatedAt: isset($row['updated_at'])
+                ? new \DateTimeImmutable($row['updated_at'])
+                : null,
         );
     }
 }

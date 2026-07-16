@@ -39,10 +39,19 @@ final class Module implements ModuleInterface
                 $container->get(CategoryService::class)
             )
         );
+
+        $container->singleton(
+            \ODE\Modules\Catalog\Category\Ajax\CategoryAjax::class,
+            fn (Container $container) => new \ODE\Modules\Catalog\Category\Ajax\CategoryAjax(
+                $container->get(CategoryController::class)
+            )
+        );
     }
 
     public function boot(Container $container): void
     {
-        // Boot do módulo
+        $container
+            ->get(\ODE\Modules\Catalog\Category\Ajax\CategoryAjax::class)
+            ->register();
     }
 }
