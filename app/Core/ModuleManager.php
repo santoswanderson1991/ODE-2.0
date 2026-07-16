@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace ODE\Core;
 
+use ODE\Core\Contracts\ModuleInterface;
+
 final class ModuleManager
 {
     /**
-     * @var array<int, object>
+     * @var ModuleInterface[]
      */
     private array $modules = [];
 
@@ -16,8 +18,14 @@ final class ModuleManager
     ) {
     }
 
-    public function register(object $module): self
+    public function register(ModuleInterface $module): self
     {
+        if (in_array($module, $this->modules, true)) {
+            return $this;
+        }
+
+        $module->register($this->container);
+
         $this->modules[] = $module;
 
         return $this;
@@ -26,19 +34,12 @@ final class ModuleManager
     public function boot(): void
     {
         foreach ($this->modules as $module) {
-
-            if (method_exists($module, 'register')) {
-                $module->register($this->container);
-            }
-
-            if (method_exists($module, 'boot')) {
-                $module->boot();
-            }
+            $module->boot($this->container);
         }
     }
 
     /**
-     * @return array<int, object>
+     * @return ModuleInterface[]
      */
     public function all(): array
     {

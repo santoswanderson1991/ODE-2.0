@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace ODE\Core;
 
+use ODE\Modules\Catalog\Category\Module as CategoryModule;
+
 final class Application
 {
-    private Container $container;
+    private readonly Container $container;
 
-    private ModuleManager $modules;
+    private readonly ModuleManager $moduleManager;
 
     public function __construct(
         private readonly string $basePath
@@ -16,63 +18,57 @@ final class Application
         $this->container = new Container();
 
         $this->registerCore();
+
+        $this->registerModules();
     }
 
     private function registerCore(): void
     {
-        $this->container->singleton(
+        $this->container->instance(
             self::class,
-            fn () => $this
+            $this
         );
 
-        $this->container->singleton(
+        $this->container->instance(
             Container::class,
-            fn () => $this->container
+            $this->container
         );
 
         $this->container->singleton(
             Config::class,
-            fn () => new Config(
-                $this->basePath
-            )
-        );
-
-        $this->container->singleton(
-            Plugin::class,
-            fn () => new Plugin($this)
+            fn () => new Config($this->basePath)
         );
 
         $this->container->singleton(
             Logger::class,
-            fn () => new Logger(
-                $this->basePath
-            )
+            fn () => new Logger($this->basePath)
         );
 
         $this->container->singleton(
             ModuleManager::class,
-            fn () => new ModuleManager(
-                $this->container
-            )
+            fn (Container $container) => new ModuleManager($container)
         );
 
-        $this->modules = $this->container->get(
+        $this->moduleManager = $this->container->get(
             ModuleManager::class
         );
     }
 
-    public function boot(): void
+    private function registerModules(): void
     {
-        $this->modules->boot();
+        $this->moduleManager->register(
+            new CategoryModule()
+        );
     }
 
     public function boot(): void
     {
-        $this->container
-            ->get(Plugin::class)
-            ->boot();
+        $this->moduleManager->boot();
+    }
 
-        $this->modules->boot();
+    public function container(): Container
+    {
+        return $this->container;
     }
 
     public function basePath(): string

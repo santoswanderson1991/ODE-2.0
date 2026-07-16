@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace ODE\Modules\Catalog\Category;
 
 use ODE\Core\Container;
+use ODE\Core\Contracts\ModuleInterface;
+use ODE\Modules\Catalog\Category\Controllers\CategoryController;
 use ODE\Modules\Catalog\Category\Repositories\CategoryRepository;
 use ODE\Modules\Catalog\Category\Services\CategoryService;
 use ODE\Modules\Catalog\Category\Validators\CategoryValidator;
-use ODE\Modules\Catalog\Category\Controllers\CategoryController;
 
-final class Module
+final class Module implements ModuleInterface
 {
     public function register(Container $container): void
     {
@@ -38,10 +39,10 @@ final class Module
                 $container->get(CategoryService::class)
             )
         );
-
     }
 
-    public function boot(): void
+    public function boot(Container $container): void
     {
+        // Boot do módulo
     }
 }
