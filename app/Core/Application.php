@@ -52,6 +52,16 @@ final class Application
         $this->moduleManager = $this->container->get(
             ModuleManager::class
         );
+
+        $this->container->singleton(
+            \ODE\Shared\UI\AssetsManager::class,
+            fn () => new \ODE\Shared\UI\AssetsManager()
+        );
+
+        $this->container->singleton(
+            \ODE\Core\Database\MigrationManager::class,
+            fn () => new \ODE\Core\Database\MigrationManager()
+        );
     }
 
     private function registerModules(): void
@@ -64,8 +74,16 @@ final class Application
     public function boot(): void
     {
         $this->moduleManager->boot();
-    }
 
+        $this->container
+            ->get(\ODE\Core\Database\MigrationManager::class)
+            ->migrate();
+
+        $this->container
+            ->get(\ODE\Shared\UI\AssetsManager::class)
+            ->register();
+    }
+    
     public function container(): Container
     {
         return $this->container;

@@ -5,90 +5,112 @@ declare(strict_types=1);
 namespace ODE\Modules\Catalog\Category\Services;
 
 use ODE\Modules\Catalog\Category\DTO\CategoryData;
-use ODE\Modules\Catalog\Category\Entities\Category;
 use ODE\Modules\Catalog\Category\Repositories\CategoryRepository;
 use ODE\Modules\Catalog\Category\Validators\CategoryValidator;
 
-final readonly class CategoryService
+final class CategoryService
 {
     public function __construct(
-        private CategoryRepository $repository,
-        private CategoryValidator $validator,
+        private readonly CategoryRepository $repository,
+        private readonly CategoryValidator $validator,
     ) {
     }
 
     /**
-     * @return Category[]
+     * @return array<int,object>
      */
     public function all(): array
     {
         return $this->repository->all();
     }
 
-    public function find(int $id): ?Category
+    public function create(CategoryData $data): object
     {
-        return $this->repository->find($id);
-    }
-
-    public function create(CategoryData $data): Category
-    {
-        $this->validator->validate($data);
-
-        $id = $this->repository->create($data);
-
-        $category = $this->repository->find($id);
-
-        if (! $category instanceof Category) {
-            throw new \RuntimeException(
-                'Não foi possível recuperar a categoria criada.'
-            );
-        }
-
-        return $category;
-    }
-
-    public function update(CategoryData $data): Category
-    {
-        if ($data->id === null) {
-            throw new \InvalidArgumentException(
-                'ID da categoria é obrigatório.'
-            );
-        }
+        $data = $this->prepareData($data);
 
         $this->validator->validate($data);
 
-        if (! $this->repository->exists($data->id)) {
-            throw new \RuntimeException(
-                'Categoria não encontrada.'
-            );
-        }
+        return $this->repository->insert($data);
+    }
 
-        $this->repository->update($data);
+    public function update(CategoryData $data): object
+    {
+        $data = $this->prepareData($data);
+        $this->validator->validate($data);
 
-        $category = $this->repository->find($data->id);
-
-        if (! $category instanceof Category) {
-            throw new \RuntimeException(
-                'Erro ao atualizar categoria.'
-            );
-        }
-
-        return $category;
+        return $this->repository->update($data);
     }
 
     public function delete(int $id): void
     {
-        if (! $this->repository->exists($id)) {
-            throw new \RuntimeException(
-                'Categoria não encontrada.'
-            );
-        }
-
         $this->repository->delete($id);
     }
 
-    public function count(): int
+    public function find(int $id): ?object
     {
-        return $this->repository->count();
+        return $this->repository->find($id);
+    }
+
+    private function prepareData(CategoryData $data): CategoryData
+    {
+        $slug = $this->buildSlug(
+            $data->slug,
+            $data->name,
+            $data->id
+        );
+
+        return new CategoryData(
+            id: $data->id,
+            name: $data->name,
+            slug: $slug,
+            description: $data->description,
+            position: $data->position,
+            active: $data->active,
+        );
+    }
+
+    private function buildSlug(
+        string $slug,
+        string $name,
+        ?int $ignoreId = null
+    ): string {
+
+        $slug = trim($slug);
+
+        if ($slug === '') {
+            $slug = sanitize_title($name);
+        } else {
+            $slug = sanitize_title($slug);
+        }
+
+        return $this->makeUniqueSlug(
+            $slug,
+            $ignoreId
+        );
+    }
+
+    private function makeUniqueSlug(
+        string $slug,
+        ?int $ignoreId = null
+    ): string {
+
+        $base = $slug;
+
+        $suffix = 2;
+
+        while (
+            $this->repository->slugExists(
+                $slug,
+                $ignoreId
+            )
+        ) {
+
+            $slug = "{$base}-{$suffix}";
+
+            $suffix++;
+
+        }
+
+        return $slug;
     }
 }

@@ -4,67 +4,162 @@ declare(strict_types=1);
 
 namespace ODE\Shared\UI;
 
-final class Toolbar
+final class Table
 {
     /**
-     * @param array<int,array{
-     *     label:string,
-     *     id?:string,
-     *     class?:string,
-     *     icon?:string,
-     *     type?:string
-     * }> $actions
+     * @param array<string,mixed> $columns
+     * @param array<int,array<string,mixed>> $rows
      */
     public static function render(
-        array $actions = [],
-        bool $search = true,
-        string $searchPlaceholder = 'Pesquisar...'
+        array $columns,
+        array $rows,
+        ?callable $actions = null,
+        string $emptyMessage = 'Nenhum registro encontrado.'
     ): void {
 
         ?>
 
-        <div class="ode-toolbar">
+        <table class="widefat striped fixed ode-table">
 
-            <div class="ode-toolbar-left">
+            <thead>
 
-                <?php if ($search) : ?>
+                <tr>
 
-                    <input
-                        type="search"
-                        id="ode-search"
-                        class="regular-text"
-                        placeholder="<?= esc_attr($searchPlaceholder); ?>"
-                    >
+                    <?php foreach ($columns as $key => $column) : ?>
 
-                <?php endif; ?>
+                        <?php
 
-            </div>
+                        if (is_string($column)) {
 
-            <div class="ode-toolbar-right">
+                            $column = [
+                                'label' => $column,
+                            ];
 
-                <?php foreach ($actions as $action) : ?>
+                        }
 
-                    <button
-                        type="<?= esc_attr($action['type'] ?? 'button'); ?>"
-                        id="<?= esc_attr($action['id'] ?? ''); ?>"
-                        class="<?= esc_attr($action['class'] ?? 'button'); ?>"
-                    >
+                        ?>
 
-                        <?php if (! empty($action['icon'])) : ?>
+                        <th
 
-                            <span class="dashicons <?= esc_attr($action['icon']); ?>"></span>
+                            <?php if (isset($column['width'])) : ?>
+
+                                style="width: <?= esc_attr((string) $column['width']); ?>"
+
+                            <?php endif; ?>
+
+                            class="<?= esc_attr($column['class'] ?? ''); ?>"
+
+                        >
+
+                            <?= esc_html($column['label']); ?>
+
+                        </th>
+
+                    <?php endforeach; ?>
+
+                    <?php if ($actions !== null) : ?>
+
+                        <th style="width:170px">
+
+                            Ações
+
+                        </th>
+
+                    <?php endif; ?>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            <?php if (empty($rows)) : ?>
+
+                <tr>
+
+                    <td colspan="<?= count($columns) + ($actions ? 1 : 0); ?>">
+
+                        <?= esc_html($emptyMessage); ?>
+
+                    </td>
+
+                </tr>
+
+            <?php else : ?>
+
+                <?php foreach ($rows as $row) : ?>
+
+                    <tr>
+
+                        <?php foreach ($columns as $key => $column) : ?>
+
+                            <?php
+
+                            if (is_string($column)) {
+
+                                $column = [
+                                    'label' => $column,
+                                ];
+
+                            }
+
+                            ?>
+
+                            <td
+                                class="<?= esc_attr($column['class'] ?? ''); ?>"
+                            >
+
+                                <?php
+
+                                $value = $row[$key] ?? null;
+
+                                if (
+                                    isset($column['render']) &&
+                                    is_callable($column['render'])
+                                ) {
+
+                                    $column['render'](
+                                        $value,
+                                        $row
+                                    );
+
+                                } else {
+
+                                    echo esc_html(
+                                        (string) $value
+                                    );
+
+                                }
+
+                                ?>
+
+                            </td>
+
+                        <?php endforeach; ?>
+
+                        <?php if ($actions !== null) : ?>
+
+                            <td>
+
+                                <?php
+
+                                $actions($row);
+
+                                ?>
+
+                            </td>
 
                         <?php endif; ?>
 
-                        <?= esc_html($action['label']); ?>
-
-                    </button>
+                    </tr>
 
                 <?php endforeach; ?>
 
-            </div>
+            <?php endif; ?>
 
-        </div>
+            </tbody>
+
+        </table>
 
         <?php
     }

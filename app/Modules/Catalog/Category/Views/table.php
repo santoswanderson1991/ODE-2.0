@@ -2,127 +2,71 @@
 
 declare(strict_types=1);
 
-if (! defined('ABSPATH')) {
-    exit;
+use ODE\Shared\UI\Table;
+use ODE\Shared\UI\Badge;
+
+/**
+ * @var array<ODE\Modules\Catalog\Category\Entities\Category> $categories
+ */
+
+$rows = [];
+
+foreach ($categories as $category) {
+
+    $rows[] = [
+
+        'id'       => $category->id,
+
+        'name'     => $category->name,
+
+        'slug'     => $category->slug,
+
+        'position' => $category->position,
+
+        'active'   => $category->active,
+
+    ];
+
 }
-?>
 
-<table class="widefat striped fixed">
+Table::render(
 
-    <thead>
+    columns: [
 
-    <tr>
+        'id'       => 'ID',
 
-        <th width="60">
-            ID
-        </th>
+        'name'     => 'Nome',
 
-        <th>
-            Nome
-        </th>
+        'slug'     => 'Slug',
 
-        <th>
-            Slug
-        </th>
+        'position' => 'Ordem',
 
-        <th width="90">
-            Ordem
-        </th>
+        'active'   => 'Status',
 
-        <th width="90">
-            Status
-        </th>
+    ],
 
-        <th width="180">
-            Ações
-        </th>
+    rows: $rows,
 
-    </tr>
+    actions: function(array $row) {
 
-    </thead>
+        ?>
 
-    <tbody>
+        <button
+            class="button button-small ode-edit"
+            data-id="<?= esc_attr((string) $row['id']); ?>"
+        >
+            Editar
+        </button>
 
-    <?php if (empty($categories)) : ?>
+        <button
+            class="button button-small button-link-delete ode-delete"
+            data-id="<?= esc_attr((string) $row['id']); ?>"
+        >
+            Excluir
+        </button>
 
-        <tr>
+        <?php
 
-            <td colspan="6">
+    }
 
-                Nenhuma categoria cadastrada.
-
-            </td>
-
-        </tr>
-
-    <?php else : ?>
-
-        <?php foreach ($categories as $category) : ?>
-
-            <tr>
-
-                <td>
-
-                    <?= esc_html((string) $category->id) ?>
-
-                </td>
-
-                <td>
-
-                    <?= esc_html($category->name) ?>
-
-                </td>
-
-                <td>
-
-                    <?= esc_html($category->slug) ?>
-
-                </td>
-
-                <td>
-
-                    <?= esc_html((string) $category->position) ?>
-
-                </td>
-
-                <td>
-
-                    <?php if ($category->active) : ?>
-
-                        <span class="dashicons dashicons-yes-alt"></span>
-
-                    <?php else : ?>
-
-                        <span class="dashicons dashicons-dismiss"></span>
-
-                    <?php endif; ?>
-
-                </td>
-
-                <td>
-
-                    <button
-                        class="button button-small ode-edit"
-                        data-id="<?= esc_attr((string) $category->id) ?>"
-                    >
-                        Editar
-                    </button>
-
-                    <button
-                        class="button button-small button-link-delete ode-delete"
-                        data-id="<?= esc_attr((string) $category->id) ?>"
-                    >
-                        Excluir
-                    </button>
-
-                </td>
-
-            </tr>
-
-        <?php endforeach; ?>
-
-    <?php endif; ?>
-
-    </tbody>
-
-</table>
+);

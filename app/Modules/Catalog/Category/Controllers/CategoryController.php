@@ -7,33 +7,37 @@ namespace ODE\Modules\Catalog\Category\Controllers;
 use ODE\Modules\Catalog\Category\DTO\CategoryData;
 use ODE\Modules\Catalog\Category\Services\CategoryService;
 
-final readonly class CategoryController
+final class CategoryController
 {
     public function __construct(
-        private CategoryService $service,
+        private readonly CategoryService $service,
     ) {
     }
 
+    /**
+     * @return array<int,object>
+     */
     public function index(): array
     {
         return $this->service->all();
     }
 
-    public function show(int $id): mixed
+    /**
+     * @param array<string,mixed> $input
+     */
+    public function store(array $input): object
     {
-        return $this->service->find($id);
-    }
-
-    public function store(array $request): mixed
-    {
-        $data = CategoryData::fromArray($request);
+        $data = CategoryData::fromArray($input);
 
         return $this->service->create($data);
     }
 
-    public function update(array $request): mixed
+    /**
+     * @param array<string,mixed> $input
+     */
+    public function update(array $input): object
     {
-        $data = CategoryData::fromArray($request);
+        $data = CategoryData::fromArray($input);
 
         return $this->service->update($data);
     }
@@ -43,8 +47,8 @@ final readonly class CategoryController
         $this->service->delete($id);
     }
 
-    public function count(): int
+    public function find(int $id): ?object
     {
-        return $this->service->count();
+        return $this->service->find($id);
     }
 }

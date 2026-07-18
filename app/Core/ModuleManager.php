@@ -13,6 +13,8 @@ final class ModuleManager
      */
     private array $modules = [];
 
+    private bool $booted = false;
+
     public function __construct(
         private readonly Container $container
     ) {
@@ -33,9 +35,15 @@ final class ModuleManager
 
     public function boot(): void
     {
+        if ($this->booted) {
+            return;
+        }
+
         foreach ($this->modules as $module) {
             $module->boot($this->container);
         }
+
+        $this->booted = true;
     }
 
     /**

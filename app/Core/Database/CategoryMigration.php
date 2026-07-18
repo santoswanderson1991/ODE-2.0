@@ -10,22 +10,23 @@ final class CategoryMigration implements MigrationInterface
 {
     public function up(): void
     {
-        error_log('CATEGORY MIGRATION EXECUTADA');
-
         global $wpdb;
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
         $table = $wpdb->prefix . 'ode_categories';
 
         $charset = $wpdb->get_charset_collate();
 
         $sql = "
+
         CREATE TABLE {$table} (
 
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
-           name VARCHAR(100) NOT NULL,
+            name VARCHAR(150) NOT NULL,
 
-            slug VARCHAR(120) NOT NULL,
+            slug VARCHAR(180) NOT NULL,
 
             description TEXT NULL,
 
@@ -35,7 +36,7 @@ final class CategoryMigration implements MigrationInterface
 
             created_at DATETIME NOT NULL,
 
-            updated_at DATETIME NULL,
+            updated_at DATETIME NOT NULL,
 
             PRIMARY KEY (id),
 
@@ -46,11 +47,8 @@ final class CategoryMigration implements MigrationInterface
             KEY active (active)
 
         ) {$charset};
+
         ";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-        error_log($sql);
 
         dbDelta($sql);
     }

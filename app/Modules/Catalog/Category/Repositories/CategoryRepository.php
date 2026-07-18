@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ODE\Modules\Catalog\Category\Repositories;
 
+use RuntimeException;
 use wpdb;
 use ODE\Modules\Catalog\Category\DTO\CategoryData;
-use ODE\Modules\Catalog\Category\Entities\Category;
 
 final class CategoryRepository
 {
@@ -19,85 +19,92 @@ final class CategoryRepository
         global $wpdb;
 
         $this->db = $wpdb;
+
         $this->table = $wpdb->prefix . 'ode_categories';
     }
 
     /**
-     * Retorna todas as categorias.
-     *
-     * @return Category[]
+     * @return array<int,object>
      */
     public function all(): array
     {
-        $rows = $this->db->get_results(
-            "SELECT * FROM {$this->table} ORDER BY position ASC",
-            ARRAY_A
-        );
-
-        return array_map(
-            fn(array $row) => $this->map($row),
-            $rows ?: []
+        return $this->db->get_results(
+            "
+            SELECT *
+            FROM {$this->table}
+            ORDER BY position ASC, name ASC
+            "
         );
     }
 
-    public function find(int $id): ?Category
+    public function find(int $id): ?object
     {
-        $row = $this->db->get_row(
+        return $this->db->get_row(
             $this->db->prepare(
-                "SELECT * FROM {$this->table} WHERE id = %d",
+                "
+                SELECT *
+                FROM {$this->table}
+                WHERE id = %d
+                ",
                 $id
-            ),
-            ARRAY_A
+            )
         );
-
-        if (!$row) {
-            return null;
-        }
-
-        return $this->map($row);
     }
 
-    public function exists(int $id): bool
+    public function insert(CategoryData $data): object
     {
-        return $this->find($id) !== null;
-    }
-
-    public function create(CategoryData $data): int
-    {
-        $this->db->insert(
+        $result = $this->db->insert(
             $this->table,
             [
                 'name'        => $data->name,
                 'slug'        => $data->slug,
                 'description' => $data->description,
-                'image'       => $data->image,
                 'position'    => $data->position,
                 'active'      => $data->active ? 1 : 0,
+                'created_at'  => current_time('mysql'),
+                'updated_at'  => current_time('mysql'),
             ],
             [
                 '%s',
                 '%s',
                 '%s',
+                '%d',
+                '%d',
                 '%s',
-                '%d',
-                '%d',
+                '%s',
             ]
         );
 
-        return (int) $this->db->insert_id;
+        if ($result === false) {
+
+            throw new RuntimeException(
+                $this->db->last_error
+            );
+
+        }
+
+        return $this->find(
+            (int) $this->db->insert_id
+        );
     }
 
-    public function update(CategoryData $data): bool
+    public function update(CategoryData $data): object
     {
-        return (bool) $this->db->update(
+        if ($data->id === null) {
+            throw new RuntimeException(
+                'ID da categoria não informado.'
+            );
+        }
+
+        $result = $this->db->update(
             $this->table,
             [
                 'name'        => $data->name,
                 'slug'        => $data->slug,
                 'description' => $data->description,
-                'image'       => $data->image,
                 'position'    => $data->position,
                 'active'      => $data->active ? 1 : 0,
+                'updated_at'  => current_time('mysql'),
             ],
             [
                 'id' => $data->id,
@@ -106,19 +113,27 @@ final class CategoryRepository
                 '%s',
                 '%s',
                 '%s',
+                '%d',
+                '%d',
                 '%s',
-                '%d',
-                '%d',
             ],
             [
                 '%d',
             ]
         );
+
+        if ($result === false) {
+            throw new RuntimeException(
+                'Erro ao atualizar categoria.'
+            );
+        }
+
+        return $this->find($data->id);
     }
 
-    public function delete(int $id): bool
+    public function delete(int $id): void
     {
-        return (bool) $this->db->delete(
+        $result = $this->db->delete(
             $this->table,
             [
                 'id' => $id,
@@ -127,31 +142,37 @@ final class CategoryRepository
                 '%d',
             ]
         );
+
+        if ($result === false) {
+            throw new RuntimeException(
+                'Erro ao excluir categoria.'
+            );
+        }
     }
 
-    public function count(): int
-    {
-        return (int) $this->db->get_var(
-            "SELECT COUNT(*) FROM {$this->table}"
-        );
-    }
+    public function slugExists(
+        string $slug,
+        ?int $ignoreId = null
+    ): bool {
 
-    private function map(array $row): Category
-    {
-        return new Category(
-            id: (int) $row['id'],
-            name: $row['name'],
-            slug: $row['slug'],
-            position: (int) $row['position'],
-            active: (bool) $row['active'],
-            description: $row['description'],
-            image: $row['image'],
-            createdAt: isset($row['created_at'])
-                ? new \DateTimeImmutable($row['created_at'])
-                : null,
-            updatedAt: isset($row['updated_at'])
-                ? new \DateTimeImmutable($row['updated_at'])
-                : null,
+        $sql = "
+            SELECT COUNT(*)
+            FROM {$this->table}
+            WHERE slug = %s
+        ";
+
+        $params = [$slug];
+
+        if ($ignoreId !== null) {
+            $sql .= " AND id <> %d";
+            $params[] = $ignoreId;
+        }
+
+        return (bool) $this->db->get_var(
+            $this->db->prepare(
+                $sql,
+                ...$params
+            )
         );
     }
 }

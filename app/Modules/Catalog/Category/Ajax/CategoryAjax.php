@@ -17,11 +17,6 @@ final class CategoryAjax
     public function register(): void
     {
         add_action(
-            'wp_ajax_ode_category_index',
-            [$this, 'index']
-        );
-
-        add_action(
             'wp_ajax_ode_category_store',
             [$this, 'store']
         );
@@ -35,87 +30,104 @@ final class CategoryAjax
             'wp_ajax_ode_category_delete',
             [$this, 'delete']
         );
-    }
 
-    public function index(): void
-    {
-        try {
-
-            wp_send_json_success(
-                $this->controller->index()
-            );
-
-        } catch (Throwable $e) {
-
-            wp_send_json_error(
-                [
-                    'message' => $e->getMessage(),
-                ],
-                500
-            );
-
-        }
+        add_action(
+            'wp_ajax_ode_category_find',
+            [$this, 'find']
+        );
     }
 
     public function store(): void
     {
+        $this->verifyNonce();
+
         try {
 
             $category = $this->controller->store($_POST);
 
-            wp_send_json_success($category);
+            wp_send_json_success([
+                'message' => 'Categoria cadastrada com sucesso.',
+                'category' => $category,
+            ]);
 
-        } catch (Throwable $e) {
+        } catch (Throwable $exception) {
 
-            wp_send_json_error(
-                [
-                    'message' => $e->getMessage(),
-                ],
-                500
-            );
+    wp_send_json_error([
+        'message' => $exception->getMessage(),
+        'file'    => $exception->getFile(),
+        'line'    => $exception->getLine(),
+        'trace'   => $exception->getTraceAsString(),
+    ]);
 
-        }
+}
     }
 
     public function update(): void
     {
+        $this->verifyNonce();
+
         try {
 
             $category = $this->controller->update($_POST);
 
-            wp_send_json_success($category);
+            wp_send_json_success([
+                'message' => 'Categoria atualizada com sucesso.',
+                'category' => $category,
+            ]);
 
-        } catch (Throwable $e) {
+        } catch (Throwable $exception) {
 
-            wp_send_json_error(
-                [
-                    'message' => $e->getMessage(),
-                ],
-                500
-            );
+            wp_send_json_error([
+                'message' => $exception->getMessage(),
+            ]);
 
         }
     }
 
     public function delete(): void
     {
+        $this->verifyNonce();
+
         try {
 
-            $id = (int) ($_POST['id'] ?? 0);
-
-            $this->controller->destroy($id);
-
-            wp_send_json_success();
-
-        } catch (Throwable $e) {
-
-            wp_send_json_error(
-                [
-                    'message' => $e->getMessage(),
-                ],
-                500
+            $this->controller->destroy(
+                (int) ($_POST['id'] ?? 0)
             );
 
+            wp_send_json_success([
+                'message' => 'Categoria removida com sucesso.',
+            ]);
+
+        } catch (Throwable $exception) {
+
+            wp_send_json_error([
+                'message' => $exception->getMessage(),
+            ]);
+
         }
+    }
+
+    public function find(): void
+    {
+        try {
+
+            $category = $this->controller->find(
+                (int) ($_GET['id'] ?? 0)
+            );
+
+            wp_send_json_success($category);
+
+        } catch (Throwable $exception) {
+
+            wp_send_json_error([
+                'message' => $exception->getMessage(),
+            ]);
+
+        }
+    }
+
+    private function verifyNonce(): void
+    {
+        return;
     }
 }

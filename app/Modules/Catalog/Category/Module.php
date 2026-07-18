@@ -10,6 +10,13 @@ use ODE\Modules\Catalog\Category\Controllers\CategoryController;
 use ODE\Modules\Catalog\Category\Repositories\CategoryRepository;
 use ODE\Modules\Catalog\Category\Services\CategoryService;
 use ODE\Modules\Catalog\Category\Validators\CategoryValidator;
+use ODE\Modules\Catalog\Category\Admin\Menu;
+use ODE\Modules\Catalog\Category\Ajax\CategoryAjax;
+use ODE\Modules\Catalog\Category\Assets\Assets;
+use ODE\Core\Database\MigrationManager;
+use ODE\Modules\Catalog\Category\Database\CategoryMigration;
+
+
 
 final class Module implements ModuleInterface
 {
@@ -41,17 +48,42 @@ final class Module implements ModuleInterface
         );
 
         $container->singleton(
-            \ODE\Modules\Catalog\Category\Ajax\CategoryAjax::class,
-            fn (Container $container) => new \ODE\Modules\Catalog\Category\Ajax\CategoryAjax(
+            CategoryAjax::class,
+            fn (Container $container) => new CategoryAjax(
                 $container->get(CategoryController::class)
             )
+        );
+
+        $container->singleton(
+            Menu::class,
+            fn (Container $container) => new Menu($container)
+        );
+
+        $container->singleton(
+            Assets::class,
+            fn (Container $container) => new Assets()
         );
     }
 
     public function boot(Container $container): void
     {
+
         $container
-            ->get(\ODE\Modules\Catalog\Category\Ajax\CategoryAjax::class)
+            ->get(MigrationManager::class)
+            ->add(
+                new CategoryMigration()
+        );
+
+        $container
+            ->get(CategoryAjax::class)
+            ->register();
+
+        $container
+            ->get(Menu::class)
+            ->register();
+
+        $container
+            ->get(Assets::class)
             ->register();
     }
 }

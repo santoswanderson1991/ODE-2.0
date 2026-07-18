@@ -36,8 +36,25 @@ require_once $autoload;
 require_once ODE_PLUGIN_PATH . 'bootstrap/app.php';
 
 register_activation_hook(
+
     __FILE__,
-    [\ODE\WordPress\Activator::class, 'activate']
+
+    static function () {
+
+        $application = new \ODE\Core\Application(
+            ODE_PLUGIN_PATH
+        );
+
+        $application->boot();
+
+        $activator = new \ODE\Core\Activator(
+            $application->container()
+        );
+
+        $activator->activate();
+
+    }
+
 );
 
 register_deactivation_hook(
