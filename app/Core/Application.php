@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ODE\Core;
 
 use ODE\Modules\Catalog\Category\Module as CategoryModule;
+use ODE\Modules\Catalog\Product\Module as ProductModule;
 
 final class Application
 {
@@ -64,12 +65,16 @@ final class Application
         );
     }
 
-    private function registerModules(): void
-    {
-        $this->moduleManager->register(
-            new CategoryModule()
-        );
-    }
+private function registerModules(): void
+{
+    $this->moduleManager->register(
+        new CategoryModule()
+    );
+
+    $this->moduleManager->register(
+        new ProductModule()
+    );
+}
 
     public function boot(): void
     {

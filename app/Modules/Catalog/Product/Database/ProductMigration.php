@@ -61,4 +61,15 @@ SQL;
 
         dbDelta($sql);
     }
+
+    public function down(): void
+    {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'ode_products';
+
+        $wpdb->query(
+            "DROP TABLE IF EXISTS {$table}"
+        );
+    }
 }

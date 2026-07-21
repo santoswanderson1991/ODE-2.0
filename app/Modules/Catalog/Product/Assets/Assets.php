@@ -22,14 +22,14 @@ final class Assets
 
         wp_enqueue_style(
             'ode-product',
-            ODE_PLUGIN_URL . 'app/resources/modules/product/product.css',
+            ODE_PLUGIN_URL . 'app/Modules/Catalog/Product/Assets/product.css',
             ['ode-ui'],
             ODE_VERSION
         );
 
         wp_enqueue_script(
             'ode-product',
-            ODE_PLUGIN_URL . 'app/resources/modules/product/product.js',
+            ODE_PLUGIN_URL . 'app/Modules/Catalog/Product/Assets/product.js',
             ['ode-ui'],
             ODE_VERSION,
             true

@@ -1,0 +1,19 @@
+.ode-stack{
+
+    display:flex;
+
+    gap:var(--ode-gap,1rem);
+
+}
+
+.ode-stack-horizontal{
+
+    flex-direction:row;
+
+}
+
+.ode-stack-vertical{
+
+    flex-direction:column;
+
+}

@@ -4,50 +4,95 @@ declare(strict_types=1);
 
 namespace ODE\Shared\UI\Components\Badge;
 
-final class Badge
+use ODE\Shared\UI\Foundation\Component;
+use ODE\Shared\UI\Support\View;
+
+final class Badge extends Component
 {
-    public static function success(string $label): void
+    private string $label = '';
+
+    private string $variant = 'secondary';
+
+    public function __construct()
     {
-        self::render($label, 'success');
+        $this->classes('ode-badge');
     }
 
-    public static function danger(string $label): void
+    public static function make(string $label = ''): static
     {
-        self::render($label, 'danger');
+        $badge = new static();
+
+        if ($label !== '') {
+            $badge->label($label);
+        }
+
+        return $badge;
     }
 
-    public static function warning(string $label): void
+    public function label(string $label): static
     {
-        self::render($label, 'warning');
+        $this->label = $label;
+
+        return $this;
     }
 
-    public static function info(string $label): void
+    public function primary(): static
     {
-        self::render($label, 'info');
+        $this->variant = 'primary';
+
+        return $this;
     }
 
-    public static function boolean(bool $status): void
+    public function secondary(): static
     {
-        self::render(
-            $status ? 'Ativo' : 'Inativo',
-            $status ? 'success' : 'danger'
+        $this->variant = 'secondary';
+
+        return $this;
+    }
+
+    public function success(): static
+    {
+        $this->variant = 'success';
+
+        return $this;
+    }
+
+    public function warning(): static
+    {
+        $this->variant = 'warning';
+
+        return $this;
+    }
+
+    public function danger(): static
+    {
+        $this->variant = 'danger';
+
+        return $this;
+    }
+
+    public function info(): static
+    {
+        $this->variant = 'info';
+
+        return $this;
+    }
+
+    public function render(): string
+    {
+        $this->class('ode-badge--' . $this->variant);
+
+        return View::render(
+            __DIR__ . '/Resources/badge.php',
+            [
+                'badge' => $this,
+            ]
         );
     }
 
-    private static function render(
-        string $label,
-        string $type
-    ): void {
-
-        ?>
-
-        <span class="ode-badge ode-badge-<?= esc_attr($type); ?>">
-
-            <?= esc_html($label); ?>
-
-        </span>
-
-        <?php
-
+    public function getLabel(): string
+    {
+        return $this->label;
     }
+
 }

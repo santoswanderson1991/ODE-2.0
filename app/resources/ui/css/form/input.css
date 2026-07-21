@@ -1,0 +1,65 @@
+.ode-field{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:.35rem;
+
+    margin-bottom:1rem;
+
+}
+
+.ode-input{
+
+    width:100%;
+
+    min-height:44px;
+
+    padding:.75rem 1rem;
+
+    border:1px solid var(--ode-border);
+
+    border-radius:var(--ode-radius-md);
+
+    background:#fff;
+
+    transition:.2s;
+
+}
+
+.ode-input:focus{
+
+    outline:none;
+
+    border-color:var(--ode-primary);
+
+    box-shadow:0 0 0 3px rgba(198,40,40,.15);
+
+}
+
+.ode-help{
+
+    font-size:.75rem;
+
+    color:#777;
+
+}
+
+.ode-error{
+
+    color:var(--ode-danger);
+
+    font-size:.8rem;
+
+}
+
+.ode-input-prefix,
+
+.ode-input-suffix{
+
+    font-size:.85rem;
+
+    color:#666;
+
+}
