@@ -26,11 +26,7 @@ $autoload = ODE_PLUGIN_PATH . 'vendor/autoload.php';
 
 if (! file_exists($autoload)) {
     add_action('admin_notices', static function (): void {
-        ?>
-        <div class="notice notice-error">
-            <p><strong>ODE Delivery:</strong> Execute <code>composer install</code>.</p>
-        </div>
-        <?php
+        echo '<div class="notice notice-error"><p><strong>ODE Delivery:</strong> Execute <code>composer install</code>.</p></div>';
     });
 
     return;
@@ -38,5 +34,32 @@ if (! file_exists($autoload)) {
 
 require_once $autoload;
 require_once ODE_PLUGIN_PATH . 'bootstrap/app.php';
+
+register_activation_hook(
+
+    __FILE__,
+
+    static function () {
+
+        $application = new \ODE\Core\Application(
+            ODE_PLUGIN_PATH
+        );
+
+        $application->boot();
+
+        $activator = new \ODE\Core\Activator(
+            $application->container()
+        );
+
+        $activator->activate();
+
+    }
+
+);
+
+register_deactivation_hook(
+    __FILE__,
+    [\ODE\WordPress\Deactivator::class, 'deactivate']
+);
 
 ODE\bootstrap();

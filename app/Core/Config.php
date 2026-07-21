@@ -6,28 +6,29 @@ namespace ODE\Core;
 
 final class Config
 {
-    /**
-     * @var array<string,mixed>
-     */
-    private array $items = [];
+    private string $basePath;
 
-    public function set(string $key, mixed $value): void
+    public function __construct(string $basePath)
     {
-        $this->items[$key] = $value;
+        $this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get(string $file, mixed $default = null): mixed
     {
-        return $this->items[$key] ?? $default;
-    }
+        $path = $this->basePath
+            . DIRECTORY_SEPARATOR
+            . 'config'
+            . DIRECTORY_SEPARATOR
+            . $file . '.php';
 
-    public function has(string $key): bool
-    {
-        return array_key_exists($key, $this->items);
-    }
+        if (! file_exists($path)) {
+            return $default;
+        }
 
-    public function all(): array
-    {
-        return $this->items;
+        $config = require $path;
+
+        return is_array($config)
+            ? $config
+            : $default;
     }
 }

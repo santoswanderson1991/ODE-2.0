@@ -1,0 +1,80 @@
+/* ==========================================
+   ODE - Category Module
+   ========================================== */
+
+#ode-category-table {
+    margin-top: 20px;
+}
+
+#ode-category-table .ode-badge {
+    min-width: 80px;
+    justify-content: center;
+}
+
+#ode-category-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+}
+
+#ode-category-form .ode-field {
+
+    margin: 0;
+
+}
+
+#ode-category-form textarea {
+
+    resize: vertical;
+
+    min-height: 120px;
+
+}
+
+#ode-category-form input[type="number"] {
+
+    max-width: 120px;
+
+}
+
+#category-drawer .ode-drawer-body {
+
+    overflow-y: auto;
+
+}
+
+#category-drawer .ode-drawer-footer {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+}
+
+.ode-category-empty {
+
+    padding: 60px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+}
+
+.ode-category-empty .dashicons {
+
+    font-size: 60px;
+
+    width: 60px;
+
+    height: 60px;
+
+    margin-bottom: 20px;
+
+}

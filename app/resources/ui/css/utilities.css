@@ -1,0 +1,32 @@
+.ode-hidden{
+    display:none!important;
+}
+
+.ode-flex{
+    display:flex;
+}
+
+.ode-grid{
+    display:grid;
+}
+
+.ode-center{
+    align-items:center;
+    justify-content:center;
+}
+
+.ode-w-100{
+    width:100%;
+}
+
+.ode-text-center{
+    text-align:center;
+}
+
+.ode-shadow{
+    box-shadow:var(--ode-shadow);
+}
+
+.ode-radius{
+    border-radius:var(--ode-radius);
+}

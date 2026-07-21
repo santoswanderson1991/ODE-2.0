@@ -1,0 +1,21 @@
+.ode-label{
+
+    display:block;
+
+    margin-bottom:.45rem;
+
+    font-size:.875rem;
+
+    font-weight:600;
+
+    color:var(--ode-text);
+
+}
+
+.ode-required{
+
+    color:var(--ode-danger);
+
+    margin-left:2px;
+
+}

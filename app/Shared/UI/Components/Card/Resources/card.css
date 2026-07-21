@@ -1,0 +1,29 @@
+.ode-card{
+
+    background:#fff;
+
+    border:1px solid var(--ode-border);
+
+    border-radius:var(--ode-radius-md);
+
+    box-shadow:var(--ode-shadow-sm);
+
+}
+
+.ode-card-padding-sm{
+
+    padding:.75rem;
+
+}
+
+.ode-card-padding-md{
+
+    padding:1rem;
+
+}
+
+.ode-card-padding-lg{
+
+    padding:2rem;
+
+}

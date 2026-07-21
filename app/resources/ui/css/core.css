@@ -1,0 +1,35 @@
+*{
+    box-sizing:border-box;
+}
+
+body{
+    font-family:var(--ode-font);
+    color:var(--ode-text);
+    background:var(--ode-background);
+}
+
+button{
+
+    cursor:pointer;
+
+    transition:var(--ode-transition);
+
+    border:none;
+
+    outline:none;
+
+}
+
+input,
+select,
+textarea{
+
+    font-family:inherit;
+
+}
+
+.ode-component{
+
+    position:relative;
+
+}

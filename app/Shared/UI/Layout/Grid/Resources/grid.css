@@ -1,0 +1,21 @@
+.ode-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+        repeat(
+
+            var(--ode-columns,12),
+
+            minmax(0,1fr)
+
+        );
+
+    gap:var(--ode-gap,1rem);
+
+    align-items:var(--ode-align,stretch);
+
+    justify-items:var(--ode-justify,stretch);
+
+}

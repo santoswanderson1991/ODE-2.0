@@ -35,6 +35,13 @@ final class Container
         ];
     }
 
+    public function instance(
+        string $id,
+        mixed $instance
+    ): void {
+        $this->instances[$id] = $instance;
+    }
+
     public function has(string $id): bool
     {
         return isset($this->bindings[$id]) || isset($this->instances[$id]);
@@ -62,4 +69,6 @@ final class Container
 
         return $object;
     }
+
+
 }
